@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include "mos.h"
 
-#include <rtthread.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -88,137 +86,46 @@ void mos_thread_delete(mos_thread_h_t thread)
 }
 
 //////////////// Queues ///////////////
-#if 1
-//----------------- queue -------------------
-mos_queue_h_t mos_queue_create ( uint32_t len, uint32_t item_size)
-{
-  return xQueueCreate( len, item_size);
-}
-
-int mos_queue_put (mos_queue_h_t xQueue, const void * pvItemToQueue)
-{
-  return xQueueSend(xQueue, pvItemToQueue, 0);
-}
-
-int mos_queue_put_from_isr (mos_queue_h_t xQueue, const void * pvItemToQueue)
-{
-  return xQueueSendToBackFromISR(xQueue, pvItemToQueue, NULL);
-}
-
-int mos_queue_waiting (mos_queue_h_t xQueue)
-{
-  return (int) uxQueueMessagesWaiting( xQueue );
-}
-
-int mos_queue_get (mos_queue_h_t xQueue, void *pvBuffer, uint32_t timeout_milliseconds)
-{
-  TickType_t xTicksToWait;
-
-  if (timeout_milliseconds == 0)
-    xTicksToWait = 0;
-  else if (timeout_milliseconds == MOS_WAIT_FOREVER) {
-    xTicksToWait = MOS_WAIT_FOREVER;
-  }
-  else {
-    xTicksToWait = pdMS_TO_TICKS(timeout_milliseconds);
-  }
-  return xQueueReceive( xQueue, pvBuffer, xTicksToWait );
-}
-#else
-
-typedef struct queue_st {
-    uint8_t *       buffer;
-    mos_mutex_h_t   mutex;
-    uint32_t        item_size;
-    uint32_t        max_num_items;
-    uint32_t        num_items;
-    uint32_t        head_idx;
-    uint32_t        tail_idx;
-} queue_t;
 
 mos_queue_h_t mos_queue_create ( uint32_t len, uint32_t item_size)
 {
-  // return xQueueCreate( len, item_size);
-  queue_t * h = (queue_t *) MOS_MALLOC(sizeof(queue_t));
-  if ( ! h) {
-      LOG_E("mos_queue_create: no memo for handle");
-      return NULL;
-  }
-  h->buffer = MOS_CALLOC(len, item_size);
-  if ( ! h->buffer) {
-      LOG_E("mos_queue_create: no memo for buffer");
-      MOS_FREE(h);
-      return NULL;
-  }
-
-  h->mutex = mos_mutex_create();
-  h->item_size = item_size;
-  h->max_num_items = len;
-  h->num_items = 0;
-  h->head_idx = 0;
-  h->tail_idx = 0;
-
-  return h;
+  static int cnt = 0;
+  char name[16];
+  snprintf(name, sizeof(name), "queue_%d", ++cnt);
+  return (mos_queue_h_t) rt_mq_create(  name,
+                                        item_size,
+                                        len,
+                                        RT_IPC_FLAG_PRIO);
 }
 
-int mos_queue_put (mos_queue_h_t queue_id, const void * item_to_queue)
+int mos_queue_put (mos_queue_h_t mq, const void * buffer)
 {
-  queue_t * q = (queue_t *) queue_id;
-  mos_mutex_lock(q->mutex);
-  if (q->num_items >= q->max_num_items) {
-    LOG_W("mos_queue_put: queue full");
-    mos_mutex_unlock(q->mutex);
-    return MOS_ERROR;
-  }
-
-  uint8_t * byte_ptr = q->buffer + (q->item_size * q->head_idx);
-  memcpy(byte_ptr, item_to_queue, q->item_size);
-  q->num_items++;
-  q->head_idx++;
-  if (q->head_idx >= q->max_num_items) {
-      q->head_idx = 0;
-  }
-
-  mos_mutex_unlock(q->mutex);
-  return MOS_PASS;
+  return rt_mq_send_wait(mq, buffer, 0, 0);
 }
 
-int mos_queue_get (mos_queue_h_t queue_id, void *item_buf, uint32_t timeout_milliseconds)
+int mos_queue_put_from_isr (mos_queue_h_t mq, const void * buffer)
 {
-    queue_t * q = (queue_t *) queue_id;
-    mos_mutex_lock(q->mutex);
-    if (q->num_items == 0) {
-      // TODO: add timeout_milliseconds wait
-      mos_mutex_unlock(q->mutex);
-      return MOS_ERROR;
-    }
-
-    uint8_t * byte_ptr = q->buffer + (q->item_size * q->tail_idx);
-    memcpy(item_buf, byte_ptr, q->item_size);
-    q->num_items--;
-    q->tail_idx++;
-    if (q->tail_idx >= q->max_num_items) {
-        q->tail_idx = 0;
-    }
-
-    mos_mutex_unlock(q->mutex);
-    return MOS_PASS;
+  return rt_mq_send_wait(mq, buffer, 0, 0);
 }
 
-int mos_queue_waiting (mos_queue_h_t queue_id)
+int mos_queue_waiting (mos_queue_h_t mq)
 {
-  queue_t * q = (queue_t *) queue_id;
-  return q->num_items; // note: assuming 32 bits CPU (atomic read)
+  return (int) rt_mq_num_msgs(mq);
 }
-#endif
+
+int mos_queue_get (mos_queue_h_t mq, void *buffer, uint32_t timeout_milliseconds)
+{
+  return (int) rt_mq_recv(  mq,
+                            buffer,
+                            0,
+                            timeout_milliseconds);
+}
 
 //----------------- Mutex ------------------
-#if 1
 mos_mutex_h_t mos_mutex_create(void)
 {
   static int cnt = 0;
   char name[16];
-
   snprintf(name, sizeof(name), "mutex_%d", ++cnt);
 
   return (mos_mutex_h_t) rt_mutex_create(name, 0);
@@ -226,51 +133,18 @@ mos_mutex_h_t mos_mutex_create(void)
 
 void mos_mutex_lock(mos_mutex_h_t mutex)
 {
-  xSemaphoreTake((SemaphoreHandle_t) mutex, MOS_WAIT_FOREVER);
+  RT_ASSERT(rt_mutex_take(mutex, MOS_WAIT_FOREVER) == MOS_PASS);
 }
 
 void mos_mutex_unlock(mos_mutex_h_t mutex)
 {
-  xSemaphoreGive((SemaphoreHandle_t) mutex);
+  RT_ASSERT(rt_mutex_release(mutex) == MOS_PASS);
 }
 
 void mos_mutex_destroy(mos_mutex_h_t mutex)
 {
-  vSemaphoreDelete( (SemaphoreHandle_t) mutex );
+  RT_ASSERT(rt_mutex_delete(mutex) == MOS_PASS);
 }
-
-#else
-mos_mutex_h_t mos_mutex_create(void)
-{
-    pthread_mutex_t * mutex_ptr = (pthread_mutex_t *) MOS_MALLOC(sizeof(pthread_mutex_t));
-    if ( ! mutex_ptr) {
-        LOG_E("mos_mutex_create: no memo for mutex");
-        return NULL;
-    }
-    pthread_mutex_init(mutex_ptr, NULL);
-    return mutex_ptr;
-}
-
-void mos_mutex_lock(mos_mutex_h_t mutex)
-{
-    if (pthread_mutex_lock(mutex)) {
-        LOG_E("mos_mutex_lock: fail");
-    }
-}
-
-void mos_mutex_unlock(mos_mutex_h_t mutex)
-{
-    if (pthread_mutex_unlock(mutex)) {
-        LOG_E("mos_mutex_unlock: fail");
-    }
-}
-
-void mos_mutex_destroy(mos_mutex_h_t mutex)
-{
-    pthread_mutex_destroy(mutex);
-    MOS_FREE(mutex);
-}
-#endif
 
 //------------------- timers ---------------------
 #define TIMER_MAGIC_WORD 0xb45ae83c

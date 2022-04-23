@@ -28,10 +28,11 @@
   #define MOS_WAIT_FOREVER 0xffffffff
 
 #elif RT_THREAD
+  #include <rtthread.h>
   #define MOS_PASS    0
-  #define MOS_ERROR   -1
-  #define MOS_WAIT_FOREVER 0xffffffff
-  
+  #define MOS_ERROR   RT_ERROR // 1
+  #define MOS_WAIT_FOREVER RT_WAITING_FOREVER
+
 #else
   #include "FreeRTOS.h"
   #define MOS_WAIT_FOREVER portMAX_DELAY
