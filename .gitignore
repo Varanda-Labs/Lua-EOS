@@ -10,3 +10,6 @@ build-lua-eos-sim-Desktop_Qt_5_15_2_GCC_64bit-Debug
 esp32-kaluga/idf_monitor_mv.py
 
 lvgl_patch_needed
+
+.DS_Store**
+
