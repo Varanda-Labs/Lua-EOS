@@ -13,7 +13,7 @@ The solution that Lua EOS delivers: product suppliers can securely provide progr
 - Qt based Simulator
 
 ![Simulator demo](./docs/images/lua_sim_demo.png)
-Details [here](./simulator.README.md)
+Details [here](./simulator)
 
 
 ## License
