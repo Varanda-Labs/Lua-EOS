@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "mos.h"
 
@@ -57,10 +58,6 @@ mos_thread_h_t mos_thread_new(  const char *pcName,
                                 uint32_t iStackSize, 
                                 uint32_t iPriority )
 {
-  TaskHandle_t xCreatedTask;
-  portBASE_TYPE xResult;
-  mos_thread_h_t xReturn;
-
   mos_thread_h_t xReturn = rt_thread_create ( pcName,
 		  	                                      thread_func, /* void(*)(void *parameter) */
 		                                          pvArg,
@@ -77,7 +74,7 @@ void mos_thread_sleep( uint32_t time_milliseconds)
     rt_thread_yield ();
   }
   else {
-    rt_thread_sleep (rt_tick_from_millisecond(time_milliseconds));
+    rt_thread_delay (rt_tick_from_millisecond(time_milliseconds));
   }
 }
 
@@ -160,18 +157,18 @@ typedef enum {
 typedef struct mos_timer_int_st {
   int             magic;  // validation
   int             type;
-  TimerHandle_t   h;
+  rt_timer_t      h;
   void *          user_callback;
   void *          user_arg;
   bool            pending_destruction;
   int             slow_timer_idx;
 } * mos_timer_int_ptr_t;
 
-static void internal_timer_callback( TimerHandle_t native_timer_h )
+static void internal_timer_callback( void * _this_timer )
 {
   timer_func_t callback;
 
-  mos_timer_int_ptr_t this_timer = (mos_timer_int_ptr_t) pvTimerGetTimerID(native_timer_h);
+  mos_timer_int_ptr_t this_timer = (mos_timer_int_ptr_t) _this_timer;
   if (this_timer->magic != TIMER_MAGIC_WORD) {
     LOG_E("bad timer");
     return;

@@ -14,14 +14,20 @@
 //
 /****************************************************************************/
 
-#define LOCK() pthread_mutex_lock(&log_mutex)
-#define UNLOCK() pthread_mutex_unlock(&log_mutex)
+#include "log.h"
+#include "mos.h"
+#include <stdio.h>
+
+mos_mutex_h_t log_mutex;
+
+#define LOCK()  mos_mutex_lock(log_mutex)
+#define UNLOCK() mos_mutex_lock(log_mutex)
 
 #define BUF_SIZE 256
 
 void log_init(void)
 {
-  if (pthread_mutex_init(&log_mutex, NULL) != 0) {
+  if ((log_mutex = mos_mutex_create()) == NULL) {
     printf("log_init: mutex failed\n");
   }
 }

@@ -6,6 +6,7 @@ CPPPATH = [cwd]
 LOCAL_CFLAGS = ''
 LOCAL_CFLAGS += ' -DLUA_EMBEDDED -DRT_THREAD'
 LOCAL_CFLAGS += ' -I' + cwd + '/rt-thread'
+LOCAL_CFLAGS += ' -I' + cwd + '/lua_eos/native'
 LOCAL_CFLAGS += ' -Wno-unused-function'
 
 print(cwd)

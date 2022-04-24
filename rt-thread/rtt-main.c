@@ -13,8 +13,13 @@
 #define LUA_EOS_THREAD_PRIO (RT_THREAD_PRIORITY_MAX*2/3)
 #endif
 
+#include "log.h"
+
 static void lua_eos_thread(void *parameter)
 {
+    log_init();
+    LOG("Normal Log");
+    LOG_E("Error log");
 
     /* handle the tasks of LVGL */
     while(1)

@@ -15,6 +15,13 @@
 #ifndef _LOG_H_
 #define _LOH_H_
 
+#ifdef LOG_I
+#undef LOG
+#undef LOG_I
+#undef LOG_W
+#undef LOG_E
+#endif
+
 #if 1
 #define LOG(fmt,...)   log_line((char *) "DEB",  __LINE__, (char *) fmt, ##__VA_ARGS__) /**< debug: its format is like printf */
 #define LOG_I(fmt,...)   log_line((char *) "INF",  __LINE__, (char *) fmt, ##__VA_ARGS__) /**< debug: its format is like printf */
@@ -26,6 +33,9 @@
 #define LOG_I (...)       do {/* dummy */} while(0)
 #define LOG_W(...)       do {/* dummy */} while(0)
 #endif
+
+void log_init(void);
+void log_line(char * what, int line, char * fmt, ...);
 
 //---------------------------------------------------
 #endif
