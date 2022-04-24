@@ -51,21 +51,22 @@ void mos_free (void * p) { return free(p); }
 
 //////////////// Tasks ///////////////
 
-mos_thread_h_t mos_thread_new( const char *pcName, thread_func_t thread_func, void *pvArg, uint32_t iStackSize, uint32_t iPriority )
-//mos_thread_h_t mos_thread_new( const char *pcName, thread_func_t thread_func, void *pvArg, int iStackSize, int iPriority )
+mos_thread_h_t mos_thread_new(  const char *pcName, 
+                                thread_func_t thread_func, 
+                                void *pvArg, 
+                                uint32_t iStackSize, 
+                                uint32_t iPriority )
 {
   TaskHandle_t xCreatedTask;
   portBASE_TYPE xResult;
   mos_thread_h_t xReturn;
 
-  xResult = xTaskCreate( thread_func, pcName, iStackSize, pvArg, iPriority, &xCreatedTask );
-
-  if( xResult == MOS_PASS ) {
-    xReturn = xCreatedTask;
-  }
-  else {
-    xReturn = NULL;
-  }
+  mos_thread_h_t xReturn = rt_thread_create ( pcName,
+		  	                                      thread_func, /* void(*)(void *parameter) */
+		                                          pvArg,
+		                                          iStackSize,
+		  	                                      iPriority,
+                                              20);
 
   return xReturn;
 }
@@ -73,16 +74,16 @@ mos_thread_h_t mos_thread_new( const char *pcName, thread_func_t thread_func, vo
 void mos_thread_sleep( uint32_t time_milliseconds)
 {
   if (time_milliseconds == 0) {
-    taskYIELD();
+    rt_thread_yield ();
   }
   else {
-    vTaskDelay(pdMS_TO_TICKS(time_milliseconds));
+    rt_thread_sleep (rt_tick_from_millisecond(time_milliseconds));
   }
 }
 
 void mos_thread_delete(mos_thread_h_t thread)
 {
-  vTaskDelete(thread);
+  rt_thread_delete(thread);
 }
 
 //////////////// Queues ///////////////
@@ -170,8 +171,6 @@ static void internal_timer_callback( TimerHandle_t native_timer_h )
 {
   timer_func_t callback;
 
-  //mos_mutex_lock(timer_mutex); Mutex would prevent to have a callback deleting any timer. Lets trust that the pending_destruction can avoid using mutex
-
   mos_timer_int_ptr_t this_timer = (mos_timer_int_ptr_t) pvTimerGetTimerID(native_timer_h);
   if (this_timer->magic != TIMER_MAGIC_WORD) {
     LOG_E("bad timer");
@@ -180,7 +179,7 @@ static void internal_timer_callback( TimerHandle_t native_timer_h )
 
   if (  (this_timer->type == MOS_TIMER_TYPE__SINGLE) ||
         (this_timer->type == MOS_TIMER_TYPE__SINGLE_SLOW)) {
-    xTimerDelete(this_timer->h, portMAX_DELAY);
+    rt_timer_delete(this_timer->h);
     if (this_timer->pending_destruction == false) {
       callback = (timer_func_t) this_timer->user_callback;
       if (callback) {
@@ -198,11 +197,10 @@ static void internal_timer_callback( TimerHandle_t native_timer_h )
   //       callback(this_timer->user_arg);
   //   }
   //   else {
-  //     xTimerDelete(this_timer->h, portMAX_DELAY);
+  //     rt_timer_delete(this_timer->h);
   //     this_timer->magic = 0; // prevent to have a garbage in the heap that looks like a good timer
   //     MOS_FREE(this_timer);
   //   }
-
   // }
   else {
     LOG_E("Timer type not yet implemented");
@@ -213,16 +211,26 @@ static void internal_timer_callback( TimerHandle_t native_timer_h )
                                     // ( time_milliseconds,     callback,              id,        false,          MOS_TIMER_TYPE__SINGLE )
 static mos_timer_int_ptr_t _timer_create( int time_milliseconds, timer_func_t callback, void * arg, bool periodic, int tm_type )
 {
+  static int cnt = 0;
+  char name[16];
+  snprintf(name, sizeof(name), "timer_%d", ++cnt);
+
   mos_timer_int_ptr_t this_timer = MOS_MALLOC(sizeof(struct mos_timer_int_st));
   if ( ! this_timer ) {
     LOG_E("mos_timer_create_single_shot: no memo");
     return NULL;
   }
-  this_timer->h = xTimerCreate( NULL,                                 //const char *pcTimerName,
-                                pdMS_TO_TICKS(time_milliseconds),     //const TickType_t xTimerPeriod,
-                                periodic,                             //const UBaseType_t uxAutoReload,
-                                (void *) this_timer,                  //void * const pvTimerID,
-                                internal_timer_callback);             //TimerCallbackFunction_t pxCallbackFunction );
+
+  rt_uint8_t flag = RT_TIMER_FLAG_SOFT_TIMER;
+  if (periodic) flag |= RT_TIMER_FLAG_PERIODIC;
+  else flag |= RT_TIMER_FLAG_ONE_SHOT;
+
+  this_timer->h = rt_timer_create(  name,
+		                                internal_timer_callback, /*void(*)(void *parameter) */ 	
+		                                (void *) this_timer,
+		                                rt_tick_from_millisecond (time_milliseconds),
+		                  	            flag);
+
   if ( ! this_timer->h ) {
     MOS_FREE(this_timer);
     LOG_W("mos_timer_create_single_shot: fail to create native timer");
@@ -233,8 +241,8 @@ static mos_timer_int_ptr_t _timer_create( int time_milliseconds, timer_func_t ca
   this_timer->user_arg = arg;
   this_timer->pending_destruction = false;
 
-  if (xTimerStart(this_timer->h, portMAX_DELAY) != pdPASS) {
-    xTimerDelete(this_timer->h, portMAX_DELAY);
+  if (rt_timer_start(this_timer->h) != RT_EOK) {
+    rt_timer_delete(this_timer->h);
     MOS_FREE(this_timer);
     LOG_W("mos_timer_create_single_shot: fail to start native timer");
     return NULL;
@@ -242,11 +250,6 @@ static mos_timer_int_ptr_t _timer_create( int time_milliseconds, timer_func_t ca
   this_timer->magic = TIMER_MAGIC_WORD;
   return this_timer;
 }
-
-// mos_timer_id_t mos_timer_create_single_shot( int time_milliseconds, timer_func_t callback, void * arg )
-// {
-//   return _timer_create( time_milliseconds, callback, arg, false, mos_TIMER_TYPE__SINGLE );
-// }
 
 bool mos_timer_create_single_shot( uint32_t time_milliseconds, timer_func_t callback, mos_timer_id_t id )
 {
