@@ -27,6 +27,14 @@
 #include <stdlib.h>
 #include "mos.h"
 
+#ifndef RT_USING_HEAP
+#error "* Lua EOS requires Kernel using Heap enabled. *"
+#endif
+
+#ifndef FINSH_DO_NOT_AUTOSTART
+#error "* Lua EOS requires finsh DO NOT auto-start enabled. *"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

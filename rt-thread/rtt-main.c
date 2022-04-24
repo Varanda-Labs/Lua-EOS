@@ -14,17 +14,23 @@
 #endif
 
 #include "log.h"
+#include "shell.h"
+#include "msh.h"
+
+static int shell_in(char *cmd, rt_size_t length)
+{
+    printf("shell_in called\n");
+    msh_exec(cmd, length);
+    return 0;
+}
 
 static void lua_eos_thread(void *parameter)
 {
-    log_init();
-    LOG("Normal Log");
-    LOG_E("Error log");
 
     /* handle the tasks of LVGL */
     while(1)
     {
-	    printf("Hello from Lua-EOS\n");
+	    //printf("Hello from Lua-EOS\n");
         rt_thread_mdelay(3000);
     }
 }
@@ -32,6 +38,13 @@ static void lua_eos_thread(void *parameter)
 static int lua_eos_init(void)
 {
     rt_thread_t tid;
+    log_init();
+
+    LOG("\nNormal Log");
+    LOG_E("Error log");
+
+    finsh_set_external_shell(&shell_in);
+    finsh_system_init();
 
     tid = rt_thread_create( "LVGL", 
                             lua_eos_thread, 
