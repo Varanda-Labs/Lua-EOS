@@ -1,3 +1,4 @@
+# Building RT-Thread using Linux
 
 ## Preparation
 We will add packages and fix path for python if necessary
@@ -62,3 +63,42 @@ pkgs --update
 scons
 ./qemu.sh
 ```
+
+# Building RT-Thread using Mac
+## Preparation
+Install MacPorts from [here](https://www.macports.org/)
+<br>Then:
+```
+sudo port install qemu
+sudo port install scons
+sudo port install ncurses
+sudo port install arm-none-eabi-gcc
+export PATH=$PATH:/opt/local/bin
+git clone -b lua-eos-01 https://github.com/mvaranda/rt-thread
+cd rt-thread/bsp/qemu-vexpress-a9/
+```
+
+
+edit file rtconfig.py
+```
+Change line:
+  from:
+    EXEC_PATH   = r'/usr/bin'
+  to:
+    EXEC_PATH   = r'/opt/local/bin'
+```
+
+## Add packages
+
+To use packages, need python requests package.<br>
+
+if no pip:
+```
+curl -O https://bootstrap.pypa.io/pip/2.7/get-pip.py
+python get-pip.py
+python -m pip install --upgrade "pip < 21.0"
+python -m pip install requests
+```
+
+The next steps are the same than the above Linux's "Config RT-Thread"
+
