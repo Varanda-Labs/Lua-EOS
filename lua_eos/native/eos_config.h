@@ -23,13 +23,16 @@
 #ifdef MOS_DESKTOP
   #define ROOT_PATH "../target_files/"
   #define EOS_PLATFORM "SIMULATOR"
+#elif defined(RT_THREAD)
+  #define ROOT_PATH "/"
+  #define EOS_PLATFORM "Qemu ARM"
 #else // cmake defines plat in BOARD_DEF
   #define ROOT_PATH "/spiffs/"
   #define EOS_PLATFORM BOARD_DEF
 #endif
 
-#define START_LUA_EOS_FILENAME (ROOT_PATH "eos.lua")
-#define EOS_APP_FILENAME (ROOT_PATH "app.lua")
+#define START_LUA_EOS_FILENAME (ROOT_PATH "eos_1.lua")
+#define EOS_APP_FILENAME (ROOT_PATH "eos_1.lua")
 
 // #ifdef MOS_DESKTOP
 //   #define START_LUA_EOS_FILENAME "../target_files/eos.lua"
@@ -43,7 +46,7 @@
 // #endif
 
 
-#define HAS_LVGL // has LVGL
+//#define HAS_LVGL // has LVGL
 
 #ifdef HAS_LVGL
   #define SHOW_ANIMATED_SPLASH

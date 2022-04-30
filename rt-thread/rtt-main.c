@@ -6,7 +6,7 @@
 #include <rtdbg.h>
 
 #ifndef LUA_EOS_THREAD_STACK_SIZE
-#define LUA_EOS_THREAD_STACK_SIZE 4096
+#define LUA_EOS_THREAD_STACK_SIZE 4096 * 10
 #endif
 
 #ifndef LUA_EOS_THREAD_PRIO
@@ -16,6 +16,7 @@
 #include "log.h"
 #include "shell.h"
 #include "msh.h"
+#include "lua_eos.h"
 
 static int shell_in(char *cmd, rt_size_t length)
 {
@@ -26,6 +27,7 @@ static int shell_in(char *cmd, rt_size_t length)
 
 static void lua_eos_thread(void *parameter)
 {
+    luaTask(NULL);
 
     /* handle the tasks of LVGL */
     while(1)
@@ -35,15 +37,21 @@ static void lua_eos_thread(void *parameter)
     }
 }
 
+void toConsole(char * msg)
+{
+    printf("%s", msg);
+}
+
 static int lua_eos_init(void)
 {
-    rt_thread_t tid;
     log_init();
 
     // LOG("\nNormal Log");
     // LOG_E("Error log");
 
-    finsh_set_external_shell(&shell_in);
+    rt_thread_t tid;
+
+    //finsh_set_external_shell(&shell_in);
     finsh_system_init();
 
     tid = rt_thread_create( "LVGL", 

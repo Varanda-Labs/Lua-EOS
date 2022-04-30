@@ -278,7 +278,7 @@ void luaTask(void * arg)
 
   luaL_loadstring(L, "EOS_PLATFORM = \"" EOS_PLATFORM "\" EOS_VERSION = " EOS_VERSION);
   lua_pcall(L, 0, 0, 0);
-
+  LOG("Loading %s", EOS_APP_FILENAME);
   if ((err = luaL_loadfile(L, EOS_APP_FILENAME)) != 0) {
     switch(err) {
     case LUA_ERRFILE:
@@ -366,15 +366,15 @@ static bool switchLuaShellMode(const char * line, int num_args, const char ** ar
 
 static bool show_lua_heap(const char * line, int num_args, const char ** args)
 {
-    char buf[256];
-    dlinfo = mspace_mallinfo(gDlmspace);
-    sprintf(buf,
-    "lua native heap statistics:\r\n"
-    "  Allocated: %d\r\n"  /* total allocated space */
-    "  Free:      %d\r\n\r\n",
-    dlinfo.uordblks, /* total allocated space */
-    dlinfo.fordblks); /* total free space */
-    toConsole(buf);
+    // char buf[256];
+    // dlinfo = mspace_mallinfo(gDlmspace);
+    // sprintf(buf,
+    // "lua native heap statistics:\r\n"
+    // "  Allocated: %d\r\n"  /* total allocated space */
+    // "  Free:      %d\r\n\r\n",
+    // dlinfo.uordblks, /* total allocated space */
+    // dlinfo.fordblks); /* total free space */
+    // toConsole(buf);
 
     return true;
 }

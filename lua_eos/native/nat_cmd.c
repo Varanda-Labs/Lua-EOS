@@ -19,6 +19,7 @@
 #include "nat_cmd.h"
 #include "eos_config.h"
 #include <string.h>
+#include <stdio.h>
 
 extern void toConsole(char * msg);
 
@@ -95,7 +96,7 @@ void nat_cmd_exec(char * line)
         m = &menu_items[i];
         if (strcmp(m->name, cmd_args[0]) == 0) {
             if (m->func) {
-                if (m->func(line, n, cmd_args))
+                if (m->func(line, n, (const char **) cmd_args))
                     nat_cmd_prompt(false);
                 return;
             }
@@ -124,13 +125,13 @@ static bool mn_help(const char * line, int num_args, const char ** args)
       m =  &menu_items[i];
       if (m->access >= menu_access) {
           toConsole("  ");
-          toConsole(m->name);
+          toConsole((char *) m->name);
           if (strlen(m->name) > 5) //7)
               toConsole("\t");
           else
               toConsole("\t\t");
-          toConsole(m->help);
-          toConsole("\r\n");
+          toConsole((char *) m->help);
+          toConsole((char *)"\r\n");
       }
   }
   toConsole("\r\n");
