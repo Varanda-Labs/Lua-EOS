@@ -32,7 +32,7 @@
 #endif
 
 #define START_LUA_EOS_FILENAME (ROOT_PATH "eos_1.lua")
-#define EOS_APP_FILENAME (ROOT_PATH "eos_1.lua")
+#define EOS_APP_FILENAME (ROOT_PATH "app_1.lua")
 
 // #ifdef MOS_DESKTOP
 //   #define START_LUA_EOS_FILENAME "../target_files/eos.lua"
