@@ -10,7 +10,7 @@
 -- *   Attribution-NonCommercial-ShareAlike 4.0 International
 -- *   https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 -- *
--- *   Note: for purchasing a commertial license contact:
+-- *   Note: for purchasing a commercial license contact:
 -- *     m@varanda.ca
 -- *
 -- ***************************************************************

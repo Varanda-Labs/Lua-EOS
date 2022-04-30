@@ -40,8 +40,8 @@ static int lua_eos_init(void)
     rt_thread_t tid;
     log_init();
 
-    LOG("\nNormal Log");
-    LOG_E("Error log");
+    // LOG("\nNormal Log");
+    // LOG_E("Error log");
 
     finsh_set_external_shell(&shell_in);
     finsh_system_init();
