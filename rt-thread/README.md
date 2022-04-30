@@ -41,7 +41,7 @@ cd rt-thread/bsp/qemu-vexpress-a9/
 ```
 export RTT_PACKAGE_URL=https://github.com/Varanda-Labs/packages.git
 ```
-### Remoning existing
+### Removing existing ~/.env directory
 we remove ~/.env as we are redirecting package URL:
 ```
 rm -rf ~/.env
