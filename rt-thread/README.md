@@ -33,7 +33,7 @@ sudo ln -s /usr/bin/python3 /usr/bin/python
 
 ## Clone Varanda's rt-thread repo
 ```
-git clone -b lua-eos-01 https://github.com/mvaranda/rt-thread
+git clone -b https://github.com/Varanda-Labs/rt-thread.git
 cd rt-thread/bsp/qemu-vexpress-a9/
 ```
 
