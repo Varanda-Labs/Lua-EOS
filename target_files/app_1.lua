@@ -23,56 +23,31 @@ else
 end
 package.path = EOS_PATH
 
--- require "lvgl"
--- require "lv_disp"
--- require "lv_obj"
--- require "lv_btn"
--- require "lv_checkbox"
--- require "lv_label"
--- require "lv_linemeter"
--- require "lv_slider"
--- require "lv_style"
--- require "lv_color"
--- require "lv_switch"
--- require "lv_keyboard"
--- require "lv_textarea"
--- require "lv_arc"
--- require "lv_bar"
--- require "lv_btnmatrix"
--- require "lv_calendar"
-
-
---------
-global_demo = 0
 glog = false
-g_user_event_1 = nil
-
-
--- -------- Variables and callback for button 1 -----
-btn_1 = nil
-label_1 = nil
-btn_1_cnt = 1
 
 -- ----------- dome: new task demo ----------
-function task_test_user_event_1( ctx )  
+function task_demo_1( ctx )  
   local c = 1
   while(1) do
-    eos.delay(ctx, 1000)
-    print("Child task c = " .. tostring(c) .. "\n")
+    eos.delay(ctx, 2000)
+    if glog == true then
+      print("Child task c = " .. tostring(c) .. "\n")
+    end
     c = c + 1
   end
 end
 
 -- -------------- Main App for simulator ------------
 function app(ctx)
-  print("task_test_user_event_1:")
-  print(task_test_user_event_1)
-  eos.create_task(task_test_user_event_1, "task_test_user_event_1")
+  
+  eos.create_task(task_demo_1, "task_demo_1")
 
   local c = 1
   while(1) do
-    eos.delay(ctx, 5000)
-    print("App c = " .. tostring(c) .. "\n")
+    eos.delay(ctx, 4000)
+    if glog == true then
+      print("App c = " .. tostring(c) .. "\n")
+    end
     c = c + 1
   end
 

@@ -256,7 +256,7 @@ void lua_bindings_registration(lua_State *L); // TODO: use header
 
 void luaTask(void * arg)
 {
-  LOG("luaInit...\r\n");
+  // LOG("luaInit...\r\n");
 
   if ( (event_queue = mos_queue_create ( EV_QUEUE_LENGTH, sizeof( ev_queue_item_t ))) == NULL) {
     LOG_E("Could not create event_queue");
@@ -278,7 +278,7 @@ void luaTask(void * arg)
 
   luaL_loadstring(L, "EOS_PLATFORM = \"" EOS_PLATFORM "\" EOS_VERSION = " EOS_VERSION);
   lua_pcall(L, 0, 0, 0);
-  LOG("Loading %s", EOS_APP_FILENAME);
+  // LOG("Loading %s", EOS_APP_FILENAME);
   if ((err = luaL_loadfile(L, EOS_APP_FILENAME)) != 0) {
     switch(err) {
     case LUA_ERRFILE:

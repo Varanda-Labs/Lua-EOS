@@ -317,7 +317,7 @@ function luashell( ctx )
   local chunk = ""
   local more = false
     
-  print_sl ("Lua EOS Shell version " .. EOS_VERSION .. "\r\nCopyrights 2021 Varanda Labs\r\n\r\n" .. LUA_PROMPT)
+  -- print_sl ("Lua EOS Shell version " .. EOS_VERSION .. "\r\nCopyrights 2021 Varanda Labs\r\n\r\n" .. LUA_PROMPT)
   
   -- subscribe for events
   ok,msg = eos.subscribe_event_by_name(ctx, "EV_SYS_TEXT_FROM_CONSOLE")
@@ -371,6 +371,7 @@ end
 --eos.create_task(app, "app")
 
 --eos.create_task(launcher, "launcher")
+eos.create_task(luashell, "luashell")
 eos.create_task(app, "app")
 eos.post(EV_SYS_START_UP, "Starting up")
 eos.scheduler()
