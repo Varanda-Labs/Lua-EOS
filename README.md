@@ -6,6 +6,9 @@ write applications without compromising the native implementation. Lua is very l
 embedded systems.  
 The solution that Lua EOS delivers: product suppliers can securely provide programming capabilities to their end users without disclosing any native code (libraries). End user scripts run "out-of-the-box" from the file system. For example, supposed a company sells a weather station; The end user could write small scripts to take actions like turn fan on when temperature is above a value, send an email when a sensor is triggered, etc.
 
+- RT-Thread Port:
+Work is in progress. For details see [this](https://github.com/Varanda-Labs/Lua-EOS/tree/master/rt-thread) link
+
 - ESP32 Port:
 
 ![ESP32 demo](./docs/images/lua_esp32_demo.png)
