@@ -12,6 +12,8 @@ LOCAL_CFLAGS += ' -I' + cwd + '/rt-thread'
 LOCAL_CFLAGS += ' -I' + cwd + '/lua_eos/native'
 LOCAL_CFLAGS += ' -I' + cwd + '/lua/src'
 LOCAL_CFLAGS += ' -I' + cwd + 'utils'
+LOCAL_CFLAGS += ' -I' + cwd + '/lvgl'
+LOCAL_CFLAGS += ' -I' + cwd + '/lvgl_patch'
 LOCAL_CFLAGS += ' -Wno-unused-function'
 LOCAL_CFLAGS += ' -Wno-implicit-function-declaration'
 
