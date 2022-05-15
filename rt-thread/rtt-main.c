@@ -29,12 +29,13 @@ static int shell_in(char *cmd, rt_size_t length)
 
 static void lua_eos_thread(void *parameter)
 {
+    // run lua thread
     luaTask(NULL);
 
     /* handle the tasks of LVGL */
     while(1)
     {
-	    //printf("Hello from Lua-EOS\n");
+	    //printf("Lua-EOS Terminated\n");
         rt_thread_mdelay(3000);
     }
 }
@@ -48,13 +49,13 @@ static int lua_eos_init(void)
 {
     log_init();
 
-    // LOG("\nNormal Log");
-    // LOG_E("Error log");
-
     rt_thread_t tid;
 
     //finsh_set_external_shell(&shell_in);
     finsh_system_init();
+
+    // start lvgl thread
+    luaeos_lvgl_init();
 
     tid = rt_thread_create( "LVGL", 
                             lua_eos_thread, 
@@ -69,6 +70,30 @@ static int lua_eos_init(void)
     rt_thread_startup(tid);
 
     return 0;
+}
+
+#include "lua.h"
+void lv_append_obj(void * obj)
+{
+//   lua_State * L = get_lua_state();
+//   if ( ! L) {
+//       return;
+//   }
+
+//   lua_getglobal(L, LV_OBJECTS);
+
+//   if ( ! lua_istable(L, -1)) {
+//     // create a table to track objects to forward events
+//     lua_newtable(L);
+//     lua_pushstring(L, "dummy_key");
+//     lua_pushstring(L, "dummy_val");
+//     lua_settable(L, -3);
+//     lua_setglobal(L, LV_OBJECTS);
+//     lua_getglobal(L, LV_OBJECTS); // to top again
+//   }
+
+//   lua_pushstring(L, "dummy");
+//   lua_setfield( L, -2, obj );
 }
 
 char * get_line(bool echo)

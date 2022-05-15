@@ -38,6 +38,9 @@
 #include <lvgl.h>
 #include <drv_clcd.h>
 
+#include <stdio.h>
+#define L() printf("Line: %d\n", __LINE__)
+
 #define USE_OLDER
 
 #ifdef USE_OLDER
@@ -123,7 +126,11 @@ void lv_port_disp_init(void)
     }
 
     /*Initialize `disp_buf` with the buffer(s). With only one buffer use NULL instead buf_2 */
+#ifdef USE_OLDER
+    lv_disp_buf_init(&disp_buf, fbuf1, fbuf2, info.width * info.height);
+#else
     lv_disp_draw_buf_init(&disp_buf, fbuf1, fbuf2, info.width * info.height);
+#endif
 
     lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
@@ -143,6 +150,8 @@ void lv_port_disp_init(void)
 
     /*Finally register the driver*/
     lv_disp_drv_register(&disp_drv);
+
+    printf("display init done!!!\n");
 }
 
 // from file lv_port_indev.c
@@ -200,11 +209,23 @@ void lv_port_indev_init(void)
 #define LV_THREAD_PRIO (RT_THREAD_PRIORITY_MAX*2/3)
 #endif
 
+
 static void lvgl_thread(void *parameter)
 {
-    /* display demo; you may replace with your LVGL application at here */
-    extern void lv_demo_music(void);
-    lv_demo_music();
+    lv_init();
+    lv_port_disp_init();
+    lv_port_indev_init();
+
+    // ----------------native test----------------
+    lv_obj_t * label;
+    lv_obj_t * btn1 = lv_btn_create(lv_scr_act(), 0);
+    lv_obj_set_pos(btn1, 30, 10);
+    lv_obj_set_size(btn1, 120, 50);
+    //lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
+    //lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40,0);
+    label = lv_label_create(btn1, 0);
+    lv_label_set_text(label, "Button");
+    //--------------------------------------------
 
     /* handle the tasks of LVGL */
     while(1)
@@ -214,9 +235,13 @@ static void lvgl_thread(void *parameter)
     }
 }
 
-static int lvgl_demo_init(void)
+extern int lcd_init(void);
+
+int luaeos_lvgl_init(void)
 {
     rt_thread_t tid;
+
+    //lcd_init();
 
     tid = rt_thread_create("LVGL", lvgl_thread, RT_NULL, LV_THREAD_STACK_SIZE, LV_THREAD_PRIO, 10);
     if(tid == RT_NULL)
@@ -224,6 +249,5 @@ static int lvgl_demo_init(void)
         LOG_E("Fail to create 'LVGL' thread");
     }
     rt_thread_startup(tid);
-
     return 0;
 }

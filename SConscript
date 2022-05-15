@@ -14,6 +14,7 @@ LOCAL_CFLAGS += ' -I' + cwd + '/lua/src'
 LOCAL_CFLAGS += ' -I' + cwd + 'utils'
 LOCAL_CFLAGS += ' -I' + cwd + '/lvgl'
 LOCAL_CFLAGS += ' -I' + cwd + '/lvgl_patch'
+LOCAL_CFLAGS += ' -I' + cwd + '/home/mvaranda/rt-thread/bsp/qemu-vexpress-a9/packages/Lua_EOS-latest/rt-thread'
 LOCAL_CFLAGS += ' -Wno-unused-function'
 LOCAL_CFLAGS += ' -Wno-implicit-function-declaration'
 
@@ -24,6 +25,8 @@ src += ['lua_eos/native/mos_rt-thread.c']
 src += ['lua_eos/native/lua_eos.c']
 src += ['lua_eos/native/bidings.c']
 src += ['lua_eos/native/nat_cmd.c']
+src += ['../../applications/lcd_init.c']
+src += Glob("lvgl/src/*/*.c")
 #src += ['utils/malloc.c']
 
 group = DefineGroup('lua-eos', src, depend = ['PKG_USING_LUA_EOS'], CPPPATH = CPPPATH, LOCAL_CFLAGS = LOCAL_CFLAGS)
