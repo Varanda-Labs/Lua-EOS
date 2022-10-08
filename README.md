@@ -25,12 +25,9 @@ Attribution-NonCommercial-ShareAlike 4.0 International
 [https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
 
 ## Video demo
-#### Nscreen32 Port (WIP May 09th, 2021)
-[https://rumble.com/vgsbhf-lua-eos-update.html](https://rumble.com/vgsbhf-lua-eos-update.html)
-#### ESP32 Port (WIP April 15th, 2021)
-[https://rumble.com/vfp949-lua-eos-esp32-port.html](https://rumble.com/vfp949-lua-eos-esp32-port.html)
-#### Update 1 (April 08th, 2021):
-[https://rumble.com/vfhdbt-lua-eos-april-08-2021-update.html](https://rumble.com/vfhdbt-lua-eos-april-08-2021-update.html)
-#### Concept (Feb 25th, 2021):
-[https://rumble.com/veh9ed-lua-eos-for-embedded-systems.html](https://rumble.com/veh9ed-lua-eos-for-embedded-systems.html)
+#### [Early days](https://rumble.com/vodset-lua-eos-early-days-first-video-about-it.html)
+#### [Nscreen32 Port (WIP May 09th, 2021)](https://rumble.com/vgsbhf-lua-eos-update.html)
+#### [ESP32 Port (WIP April 15th, 2021)](https://rumble.com/vfp949-lua-eos-esp32-port.html)
+#### [Update 1 (April 08th, 2021)](https://rumble.com/vfhdbt-lua-eos-april-08-2021-update.html)
+
 
